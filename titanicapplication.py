@@ -2,7 +2,7 @@ import streamlit as st
 import pickle
 
 st.title('Welcome to my ML app!')
-st.image('image.png')
+st.image('Titanic_Image.jpeg')
 #Load the pretrained model
 with open('titanicpickle.pkl', 'rb') as pickle_file:
     pickle_file_load = pickle.load(pickle_file)
