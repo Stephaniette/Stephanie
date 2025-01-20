@@ -1,6 +1,4 @@
-sklearn.model_selection
-sklearn.tree
-sklearn.metrics
+scikit-learn
 pandas
 numpy
 streamlit
