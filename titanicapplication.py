@@ -1,38 +1,58 @@
 import streamlit as st
 import pickle
-
-st.title('Welcome to my ML app!')
-st.image('Titanic_Image.jpeg')
+ 
+#Set the title and Display an Image for Branding
+st.title('Titanic Survival Prediction App!')
+st.image('Titanic_Image.jpeg', caption = 'Predict Survival on the Titanic')
+ 
 #Load the pretrained model
-with open('titanicpickle.pkl', 'rb') as pickle_file:
-    pickle_file_load = pickle.load(pickle_file)
-
-#Function that makes the prediction
-def PredictionFunction(Pclass, Sex, Age,SibSp, Parch, Fare, Embarked):
-    prediction = pickle_file_load.predict([[Pclass, Sex, Age, SibSp, Parch, Fare, Embarked]])
-    print(prediction)
-    return prediction
-
-
+with open('titanicpickle2.pkl', 'rb') as pickleFile:
+    model = pickle.load(pickleFile)
+ 
+#Function to Make Prediction
+def PredictionFunction(Pclass, Sex, Age, SibSp, Parch, Fare, Embarked):
+    try:
+        prediction = model.predict([[Pclass, Sex, Age, SibSp, Parch, Fare, Embarked]])
+        return 'Survived' if prediction[0] == 1 else 'Did not Survived'
+    except Exception as e:
+        return f'Error:{str(e)}'
+ 
+#Sidebar for Instructions
+st.sidebar.header('How to Use!')
+st.sidebar.markdown("""
+1. Enter the Passenger Details in the Form.
+2. Click 'Predict' to See the Survival Result.
+3. Adjust Values to Test Different Scenarios.
+""")
+st.sidebar.info('Example: A 30 years old male, 3rd class, $20 fare, travelinga alone from port Southempton.')
+ 
+#Main Input Form
 def main():
-    st.title('Titanic Prediction App!')
-    Pclass = st.text_input('Passenger Class') #1
-    Sex = st.text_input('Sex') #0
-    Age = st.text_input('Age')#23
-    SibSp = st.text_input('Sib/Sp')
-    Parch = st.text_input('Par/Child')
-    Fare = st.text_input('Fare')
-    Embarked = st.text_input('Embarked')
-    result = ''
+    st.subheader('Enter Passenger Details:')
+    col1, col2 = st.columns(2)
+    #Organize inputs in columns
+    with col1:
+        Pclass = st.selectbox('Passenger Class:', options = [1,2,3], format_func = lambda X: f'class{X}')
+        Sex = st.radio("Sex:" , options = ['male', 'female'])
+        Age = st.slider('Age:', min_value=0, max_value=100, value=30)
+    with col2:
+        SibSp = st.slider('Siblings/Spouses Abroad:', min_value=0, max_value=10, value=0)
+        Parch = st.slider('Parents/Children Aboard:', min_value=0, max_value=10, value=0)
 
-    if st.button('Predict'):
-        #Convert the inputs to appropriate data types
-        Pclass = int(Pclass)
-        Age = float(Age)
-        SibSp = int(SibSp)
-        Parch = int(Parch)
-        Fare = float(Fare)
+        Fare = st.slider('Fare($):', min_value=0.0, max_value=500.0, value=50.0, step=0.1)
+        Embarked = st.radio('Port of Embarkation:', options=['C','Q','S'], format_func = lambda X : f'port{X}')
+
+    #convert categorical inputs to numeric values
+    Sex = 1 if Sex == 'female' else 0
+    Embarked = {'C':0, 'Q':1, 'S':2}[Embarked]
+    
+    #Button for prediction
+    if st.button('predict'):
         result = PredictionFunction(Pclass, Sex, Age, SibSp, Parch, Fare, Embarked)
-    st.success(f'The output is: {result}')
-
-main()
+        st.markdown(f'###{result}')
+        st.balloons()
+ 
+#Run the main function
+if __name__ == '__main__':
+    main()
+ 
